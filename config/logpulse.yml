@@ -1,0 +1,84 @@
+# ============================================================
+#  logpulse.yml  –  Configuration sample
+# ============================================================
+# Copy to config/logpulse.yml or pass via --config <path>
+# All options can be overridden by CLI flags.
+
+# ── Files to watch ─────────────────────────────────────────
+# Accepts absolute or relative (to cwd) paths.
+files:
+  - /var/log/syslog
+  - /var/log/nginx/access.log
+  - /var/log/nginx/error.log
+
+# ── Dashboard ───────────────────────────────────────────────
+dashboard:
+  enabled: true
+  port: 3000
+  cors: true          # allow cross-origin requests
+
+# ── Watcher ─────────────────────────────────────────────────
+watcher:
+  tailLines: 50       # lines to read on startup before watching
+  debounceMs: 100     # debounce rapid file writes
+  maxLineLength: 4096 # truncate lines longer than this
+
+# ── Pattern definitions ─────────────────────────────────────
+# Lines matching a pattern are tagged with the pattern name
+# and their severity is escalated accordingly.
+patterns:
+  - name: http_error
+    regex: '(5\d{2}|ERROR|CRITICAL)'
+    severity: error
+    message: 'HTTP error detected'
+
+  - name: warning
+    regex: '\b(WARN|WARNING)\b'
+    severity: warn
+
+  - name: auth_failure
+    regex: '(authentication failure|failed login|permission denied)'
+    severity: error
+    message: 'Authentication failure'
+
+  - name: slow_request
+    regex: '(slow query|timeout|request took \d+ms)'
+    severity: warn
+
+  - name: health_ok
+    regex: '(\bOK\b|healthy|up)'
+    severity: info
+
+# ── Anomaly detection ─────────────────────────────────────────
+anomaly:
+  enabled: true
+  rateThreshold: 100     # lines/sec threshold
+  rateWindowMs: 5000     # measurement window
+  errorRatioThreshold: 0.5  # trigger if >50% lines are errors in window
+
+# ── Alerts ───────────────────────────────────────────────────
+# Each alert fires when its condition matches, then respects
+# a per-alert cooldown to prevent alert storms.
+alerts:
+  - name: high_error_rate
+    enabled: true
+    channel: log
+    condition:
+      severity: error
+    cooldownMs: 60000     # fire at most once per minute
+
+  - name: webhook_alert
+    enabled: false        # set true and configure webhook to activate
+    channel: webhook
+    webhook: 'https://your-webhook-endpoint.com/alert'
+    condition:
+      severity: critical
+    cooldownMs: 300000
+
+  - name: exec_notify
+    enabled: false
+    channel: exec
+    command: 'echo "{{severity}}: {{file}} – {{line}}" | mail -s "logpulse alert" admin@example.com'
+    condition:
+      pattern: '(outage|panic|SEVERE)'
+    cooldownMs: 300000

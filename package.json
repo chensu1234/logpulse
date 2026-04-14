@@ -1,0 +1,41 @@
+{
+  "name": "logpulse",
+  "version": "1.0.0",
+  "description": "Real-time log file watcher with pattern detection, anomaly alerting, and live dashboard",
+  "main": "bin/logpulse.js",
+  "bin": {
+    "logpulse": "./bin/logpulse.js"
+  },
+  "scripts": {
+    "start": "node bin/logpulse.js",
+    "dev": "NODE_ENV=development node bin/logpulse.js",
+    "test": "node --test test/*.test.js",
+    "lint": "eslint bin/ lib/ --fix"
+  },
+  "keywords": [
+    "log",
+    "watcher",
+    "monitor",
+    "anomaly-detection",
+    "real-time",
+    "log-analysis"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "chokidar": "^3.6.0",
+    "commander": "^14.0.3",
+    "express": "^4.18.2",
+    "figlet": "^1.7.0",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "ws": "^8.16.0",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0"
+  }
+}
