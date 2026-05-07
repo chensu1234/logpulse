@@ -1,0 +1,126 @@
+# logpulse configuration example
+# Place this file as config/config.yaml or pass via -config flag
+
+# Log files to monitor (can also be passed as CLI arguments)
+targets:
+  - /var/log/syslog
+  - /var/log/nginx/access.log
+  - /var/log/nginx/error.log
+
+# Alerting rules
+rules:
+  - name: error-keyword
+    pattern: '(?i)(error|exception|fatal|fail(ed)?|critical)'
+    description: 'Matches common error keywords in log lines'
+    severity: error
+    tags:
+      - errors
+      - production
+    actions:
+      - stdout
+      - webhook
+    enabled: true
+
+  - name: warning-keyword
+    pattern: '(?i)warn(ing)?'
+    description: 'Matches warning keywords'
+    severity: warning
+    tags:
+      - warnings
+    actions:
+      - stdout
+    enabled: true
+
+  - name: http-5xx
+    pattern: 'HTTP/[12]"? 5\d{2}'
+    description: 'Matches HTTP 5xx server errors'
+    severity: error
+    tags:
+      - http
+      - server-errors
+    actions:
+      - stdout
+    rate: 30  # Alert if more than 30 matches per minute
+    enabled: true
+
+  - name: http-4xx
+    pattern: 'HTTP/[12]"? 4\d{2}'
+    description: 'Matches HTTP 4xx client errors'
+    severity: warning
+    tags:
+      - http
+      - client-errors
+    actions:
+      - stdout
+    enabled: true
+
+  - name: panic-keyword
+    pattern: '(?i)panic|goroutine|ddeadlock'
+    description: 'Matches Go panic/ deadlock patterns'
+    severity: critical
+    tags:
+      - golang
+      - critical
+    actions:
+      - stdout
+      - webhook
+    threshold: 1  # Fire immediately on first match
+    enabled: true
+
+  - name: security-event
+    pattern: '(?i)(unauthorized|forbidden|authentication failed|permission denied|injection|xss|sql injection)'
+    description: 'Security-relevant events'
+    severity: critical
+    tags:
+      - security
+    actions:
+      - stdout
+      - webhook
+    enabled: true
+
+  - name: slow-request
+    pattern: 'latency [0-9]{4,}ms'
+    description: 'Requests with high latency (>1000ms)'
+    severity: warning
+    tags:
+      - performance
+    actions:
+      - stdout
+    enabled: true
+
+# Output channels
+outputs:
+  - type: stdout
+    name: terminal
+    format: text  # or json
+    level: info   # minimum severity
+
+  - type: file
+    name: alert-log
+    path: log/alerts.log
+    format: json
+    level: info
+
+  # Uncomment and configure for webhook alerts:
+  # - type: webhook
+  #   name: generic-webhook
+  #   url: https://your-webhook-endpoint.com/alerts
+  #   format: json
+  #   level: error
+  #   fields:
+  #     Authorization: "Bearer your-token-here"
+
+  # Uncomment for Slack integration:
+  # - type: slack
+  #   name: slack-alerts
+  #   url: https://hooks.slack.com/services/xxx/yyy/zzz
+  #   format: json
+  #   level: warning
+  #   fields:
+  #     channel: "#alerts"
+
+# General settings
+verbose: false
+
+# Filter mode: "all" fires on all matches, "first" fires on first match per rule
+filter_mode: all

@@ -1,0 +1,52 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/logpulse
+
+# Test artifacts
+*.test
+coverage.out
+*.coverprofile
+
+# Build artifacts
+dist/
+build/
+releases/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs (application-generated)
+log/*.log
+*.log
+
+# Config overrides (local)
+config/*.local.yaml
+config/local.yaml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.bak
+
+# Dependency directories (if using GOPATH mode)
+/vendor/
